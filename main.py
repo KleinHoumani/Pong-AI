@@ -17,6 +17,7 @@ PADDLE_HEIGHT = 100
 BALL_RADIUS = 7
 
 SCORE_FONT = pygame.font.SysFont("comicsans", 50)
+WINNING_SCORE = 10
 
 
 class Paddle:
@@ -24,8 +25,8 @@ class Paddle:
     VELOCITY = 4
 
     def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
+        self.x = self.original_x = x
+        self.y = self.original_y = y
         self.width = width
         self.height = height
 
@@ -38,6 +39,10 @@ class Paddle:
         else:
 
             self.y += self.VELOCITY
+
+    def reset(self):
+        self.x = self.original_x
+        self.y = self.original_y
 
 
 class Ball:
@@ -61,8 +66,8 @@ class Ball:
     def reset(self):
         self.x = self.original_x
         self.y = self.original_y
-        self.x += self.x_velocity
-        self.y += self.y_velocity
+        self.x_velocity *= -1
+        self.y_velocity = 0
 
 
 def draw(win, left_paddle, right_paddle, ball, left_score, right_score):
@@ -72,7 +77,7 @@ def draw(win, left_paddle, right_paddle, ball, left_score, right_score):
     right_score_text = SCORE_FONT.render(f"{right_score}", True, WHITE)
 
     win.blit(left_score_text, (WIDTH * (1/4) - left_score_text.get_width() // 2, 20))
-    win.blit(left_score_text, (WIDTH * (3/4) - right_score_text.get_width() // 2, 20))
+    win.blit(right_score_text, (WIDTH * (3/4) - right_score_text.get_width() // 2, 20))
 
     left_paddle.draw(win)
     right_paddle.draw(win)
@@ -90,9 +95,9 @@ def draw(win, left_paddle, right_paddle, ball, left_score, right_score):
 
 def handle_collision(ball, left_paddle, right_paddle):
     if ball.y + ball.radius >= HEIGHT:
-        ball.y_vel *= -1
+        ball.y_velocity *= -1
     elif ball.y - ball.radius <= 0:
-        ball.y_vel *= -1
+        ball.y_velocity *= -1
 
     if ball.x_velocity < 0:
         if ball.y >= left_paddle.y and ball.y <= left_paddle.y + left_paddle.height:
@@ -157,10 +162,35 @@ def main():
         if ball.x < 0:
             right_score += 1
             ball.reset()
-            print(right_score)
         elif ball.x > WIDTH:
             ball.reset()
             left_score += 1
+
+        if left_score >= WINNING_SCORE:
+            ball.reset()
+            left_paddle.reset()
+            right_paddle.reset()
+
+            winner_text = "Left player won!"
+            display_winner = SCORE_FONT.render(winner_text, True, WHITE)
+            WIN.blit(display_winner, (WIDTH // 2 - display_winner.get_width(), HEIGHT // 2 - display_winner.get_height()))
+            pygame.display.update()
+            pygame.time.delay(5000)
+            left_score = 0
+            right_score = 0
+
+        elif right_score >= WINNING_SCORE:
+            ball.reset()
+            left_paddle.reset()
+            right_paddle.reset()
+
+            winner_text = "Left player won!"
+            display_winner = SCORE_FONT.render(winner_text, True, WHITE)
+            WIN.blit(display_winner, (WIDTH // 2, HEIGHT // 2))
+            pygame.display.update()
+            pygame.time.delay(5000)
+            left_score = 0
+            right_score = 0
 
     pygame.quit()
 

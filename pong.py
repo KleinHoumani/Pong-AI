@@ -3,7 +3,6 @@ import pygame
 pygame.init()
 WIDTH = 700
 HEIGHT = 500
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Pong')
 
 FPS = 60
@@ -122,6 +121,8 @@ class Game:
             if self.ball.y >= self.left_paddle.y and self.ball.y <= self.left_paddle.y + self.left_paddle.height:
                 if self.ball.x - self.ball.radius <= self.left_paddle.x + self.left_paddle.width:
                     self.ball.x_velocity *= -1
+                    self.left_hits += 1
+
 
                     middle_y = self.left_paddle.y + self.left_paddle.height / 2
                     difference_y = middle_y - self.ball.y
@@ -133,6 +134,7 @@ class Game:
             if self.ball.y >= self.right_paddle.y and self.ball.y <= self.right_paddle.y + self.right_paddle.height:
                 if self.ball.x + self.ball.radius >= self.right_paddle.x:
                     self.ball.x_velocity *= -1
+                    self.right_hits += 1
 
                     middle_y = self.right_paddle.y + self.right_paddle.height / 2
                     difference_y = middle_y - self.ball.y
@@ -173,6 +175,7 @@ class Game:
             self.right_paddle.move(up=False)
 
 
+# WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 # run = True
 # clock = pygame.time.Clock()
 # game = Game(WIN)

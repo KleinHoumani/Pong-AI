@@ -33,8 +33,9 @@ class Paddle:
 
     def move(self, up=True):
         if up:
-            self.y -= self.VELOCITY
-        else:
+            if self.y - self.VELOCITY >= 0:
+                self.y -= self.VELOCITY
+        elif self.y + self.VELOCITY + self.height <= HEIGHT:
             self.y += self.VELOCITY
 
     def reset(self):

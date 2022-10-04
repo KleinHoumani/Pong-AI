@@ -86,6 +86,7 @@ class Game:
         self.right_hits = 0
         self.left_score = 0
         self.right_score = 0
+        self.winning_score = 10
 
     def draw(self):
         self.win.fill(BLACK)
@@ -192,8 +193,29 @@ class Game:
             self.ball.reset()
             self.left_score += 1
 
+        game_over = False
+        if self.left_score >= self.winning_score:
+            winner_text = "Left player wins!"
+            display_winner = SCORE_FONT.render(winner_text, True, WHITE)
+            self.win.blit(display_winner, (WIDTH // 2 - display_winner.get_width() // 2, HEIGHT // 2 - display_winner.get_height() // 2))
+            pygame.display.update()
+            pygame.time.delay(5000)
+            game_over = True
+            self.left_score = 0
+            self.right_score = 0
+
+        elif self.right_score >= self.winning_score:
+            winner_text = "Right player wins!"
+            display_winner = SCORE_FONT.render(winner_text, True, WHITE)
+            self.win.blit(display_winner, (WIDTH // 2 - display_winner.get_width() // 2, HEIGHT // 2 - display_winner.get_height() // 2))
+            pygame.display.update()
+            pygame.time.delay(5000)
+            game_over = True
+            self.left_score = 0
+            self.right_score = 0
+
         stats = GameStats(self.left_hits, self.right_hits, self.left_score, self.right_score)
-        return stats
+        return stats, game_over
 
     def paddle_movement(self, pressed_keys):
         if pressed_keys[pygame.K_w] and self.left_paddle.y - self.left_paddle.VELOCITY >= 0:
@@ -205,25 +227,3 @@ class Game:
             self.right_paddle.move(up=True)
         if pressed_keys[pygame.K_DOWN] and self.right_paddle.y + self.right_paddle.VELOCITY + self.right_paddle.height <= HEIGHT:
             self.right_paddle.move(up=False)
-
-
-
-# WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-# run = True
-# clock = pygame.time.Clock()
-# game = Game(WIN)
-# while run:
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             run = False
-#             break
-#         if event.type == pygame.MOUSEBUTTONDOWN:
-#             mouse_down = True
-#             pos = pygame.mouse.get_pos()
-#         elif event.type == pygame.MOUSEBUTTONUP:
-#             mouse_down = False
-#
-#     game.menu()
-#     clock.tick(FPS)
-
-

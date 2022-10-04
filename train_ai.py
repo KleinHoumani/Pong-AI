@@ -41,7 +41,7 @@ class PongAI:
             if move2 == 2:
                 self.right_paddle.move(False)
 
-            stats = self.game.main_game()
+            stats = self.game.main_game()[0]
             duration = time.time() - start_time
 
             if stats.left_score > 0 or stats.right_score > 0 or stats.left_hits > 30:
@@ -71,8 +71,6 @@ class PongAI:
             self.right_paddle.move(True)
         if move == 2:
             self.right_paddle.move(False)
-
-
 
     def determine_fitness(self, genome1, genome2, stats):
         genome1.fitness += stats.left_hits
@@ -152,15 +150,21 @@ def play_ai(config_path):
         if option == 0:
             choice = pong.game.menu()
             option += choice
-        if option == 1:
+        elif option == 1:
             pong.set_ai(winner, config)
-            pong.game.main_game()
-        if option == 2:
+            game = pong.game.main_game()
+            if game[1]:
+                option -= option
+        elif option == 2:
             pong.set_ai(winner, config)
-            pong.game.main_game()
-        if option == 3:
+            game = pong.game.main_game()
+            if game[1]:
+                option -= option
+        elif option == 3:
             pong.set_ai(winner, config)
-            pong.game.main_game()
+            game = pong.game.main_game()
+            if game[1]:
+                option -= option
 
 
 if __name__ == '__main__':

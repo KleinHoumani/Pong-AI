@@ -13,7 +13,6 @@ class PongAI:
         self.right_paddle = self.game.right_paddle
         self.ball = self.game.ball
 
-
     def train_ai(self, genome1, genome2, config):
         net1 = neat.nn.FeedForwardNetwork.create(genome1, config)
         net2 = neat.nn.FeedForwardNetwork.create(genome2, config)
@@ -56,32 +55,23 @@ class PongAI:
     def set_ai(self, genome, config):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         run = True
-        clock = pygame.time.Clock()
-        while run:
-            clock.tick(60)
 
-            pressed_keys = pygame.key.get_pressed()
-            if pressed_keys[pygame.K_w]:
-                self.left_paddle.move(True)
-            if pressed_keys[pygame.K_s]:
-                self.left_paddle.move(False)
+        pressed_keys = pygame.key.get_pressed()
+        if pressed_keys[pygame.K_w]:
+            self.left_paddle.move(True)
+        if pressed_keys[pygame.K_s]:
+            self.left_paddle.move(False)
 
-            output = net.activate((self.right_paddle.y, self.ball.y, abs(self.right_paddle.x - self.ball.x)))
-            move = output.index(max(output))
+        output = net.activate((self.right_paddle.y, self.ball.y, abs(self.right_paddle.x - self.ball.x)))
+        move = output.index(max(output))
 
-            if move == 0:
-                pass
-            if move == 1:
-                self.right_paddle.move(True)
-            if move == 2:
-                self.right_paddle.move(False)
+        if move == 0:
+            pass
+        if move == 1:
+            self.right_paddle.move(True)
+        if move == 2:
+            self.right_paddle.move(False)
 
-
-            stats = self.game.main_game()
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    quit()
 
 
     def determine_fitness(self, genome1, genome2, stats):
@@ -107,7 +97,6 @@ def eval_genomes(genomes, config):
             training = PongAI(win)
             training.train_ai(genome1, genome2, config)
 
-
 def run(config_path):
     config = neat.config.Config(
         neat.DefaultGenome,
@@ -129,7 +118,7 @@ def run(config_path):
         pickle.dump(winner, f)
 
 
-def play_ai(config):
+def play_ai(config_path):
     config = neat.config.Config(
         neat.DefaultGenome,
         neat.DefaultReproduction,
@@ -138,16 +127,41 @@ def play_ai(config):
         config_path
     )
 
+    with open("best.pickle", "rb") as f:
+        winner = pickle.load(f)
+
     width = 700
     height = 500
     win = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Pong AI")
 
-    with open("best.pickle", "rb") as f:
-        winner = pickle.load(f)
-
     pong = PongAI(win)
-    pong.set_ai(winner, config)
+    option = 0
+
+    fps = 60
+    run = True
+    clock = pygame.time.Clock()
+
+    while run:
+        clock.tick(fps)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                break
+
+        if option == 0:
+            choice = pong.game.menu()
+            option += choice
+        if option == 1:
+            pong.set_ai(winner, config)
+            pong.game.main_game()
+        if option == 2:
+            pong.set_ai(winner, config)
+            pong.game.main_game()
+        if option == 3:
+            pong.set_ai(winner, config)
+            pong.game.main_game()
+
 
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)

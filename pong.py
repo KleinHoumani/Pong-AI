@@ -87,7 +87,6 @@ class Game:
         self.left_score = 0
         self.right_score = 0
 
-
     def draw(self):
         self.win.fill(BLACK)
 
@@ -111,6 +110,38 @@ class Game:
 
         pygame.display.update()
 
+    def menu(self):
+        self.win.fill(BLACK)
+
+        easy_text = SCORE_FONT.render("Easy", True, WHITE)
+        medium_text = SCORE_FONT.render("Medium", True, WHITE)
+        hard_text = SCORE_FONT.render("Hard", True, WHITE)
+
+        rect_x = WIDTH // 2 - 100
+        rect_width = 200
+        rect_height = 80
+        pygame.draw.rect(self.win, WHITE, (rect_x, 2 * HEIGHT // 10, rect_width, rect_height), 2)
+        pygame.draw.rect(self.win, WHITE, (rect_x, 4 * HEIGHT // 10, rect_width, rect_height), 2)
+        pygame.draw.rect(self.win, WHITE, (rect_x, 6 * HEIGHT // 10, rect_width, rect_height), 2)
+
+        self.win.blit(easy_text, (WIDTH // 2 - easy_text.get_width() // 2, 2 * HEIGHT // 10))
+        self.win.blit(medium_text, (WIDTH // 2 - medium_text.get_width() // 2, 4 * HEIGHT // 10))
+        self.win.blit(hard_text, (WIDTH // 2 - hard_text.get_width() // 2, 6 * HEIGHT // 10))
+
+        option = 0
+        mouse_down = pygame.mouse.get_pressed()[0]
+        if mouse_down:
+            x, y = pygame.mouse.get_pos()
+            if x >= rect_x and x <= rect_x + rect_width:
+                if y >= 2 * HEIGHT // 10 and y <= 2 * HEIGHT // 10 + rect_height:
+                    option += 1
+                elif y >= 2 * HEIGHT // 10 and y <= 4 * HEIGHT // 10 + rect_height:
+                    option += 2
+                elif y >= 2 * HEIGHT // 10 and y <= 6 * HEIGHT // 10 + rect_height:
+                    option += 3
+
+        pygame.display.update()
+        return option
 
     def handle_collision(self):
         if self.ball.y + self.ball.radius >= HEIGHT:
@@ -176,23 +207,23 @@ class Game:
             self.right_paddle.move(up=False)
 
 
+
 # WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 # run = True
 # clock = pygame.time.Clock()
 # game = Game(WIN)
 # while run:
-#     game.main_game()
-#     clock.tick(FPS)
-#
-#     pressed_keys = pygame.key.get_pressed()
-#
-#     if pressed_keys[pygame.K_w]:
-#         game.paddle_controls(True)
-#     if pressed_keys[pygame.K_s]:
-#         game.paddle_controls(False)
-#
 #     for event in pygame.event.get():
 #         if event.type == pygame.QUIT:
 #             run = False
 #             break
+#         if event.type == pygame.MOUSEBUTTONDOWN:
+#             mouse_down = True
+#             pos = pygame.mouse.get_pos()
+#         elif event.type == pygame.MOUSEBUTTONUP:
+#             mouse_down = False
+#
+#     game.menu()
+#     clock.tick(FPS)
+
 

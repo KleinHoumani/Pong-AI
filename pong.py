@@ -1,4 +1,5 @@
 import pygame
+import random
 
 pygame.init()
 WIDTH = 700
@@ -14,7 +15,7 @@ PADDLE_WIDTH = 20
 PADDLE_HEIGHT = 100
 BALL_RADIUS = 7
 
-SCORE_FONT = pygame.font.SysFont("comicsans", 50)
+SCORE_FONT = pygame.font.SysFont("Mecanorma's Blippo Bold", 50)
 WINNING_SCORE = 5
 
 
@@ -53,6 +54,7 @@ class Ball:
         self.radius = radius
         self.x_velocity = self.BALL_VELOCITY
         self.y_velocity = 0
+        # self.y_velocity = random.choice([-4, -3, -2, -1, 1, 2, 3, 4]) # Use this for training
 
     def draw(self, win):
         pygame.draw.circle(win, self.COLOR, (self.x, self.y), self.radius)
@@ -66,14 +68,16 @@ class Ball:
         self.y = self.original_y
         self.x_velocity *= -1
         self.y_velocity = 0
+        # self.y_velocity = random.choice([-4, -3, -2, -1, 1, 2, 3, 4]) #Use this for training
 
 
 class GameStats:
-    def __init__(self, left_hits, right_hits, left_score, right_score):
+    def __init__(self, left_hits, right_hits, left_score, right_score, game_over):
         self.left_hits = left_hits
         self.right_hits = right_hits
         self.left_score = left_score
         self.right_score = right_score
+        self.game_over = game_over
 
 
 class Game:
@@ -86,7 +90,7 @@ class Game:
         self.right_hits = 0
         self.left_score = 0
         self.right_score = 0
-        self.winning_score = 10
+        self.winning_score = 5
 
     def draw(self):
         self.win.fill(BLACK)
@@ -101,11 +105,12 @@ class Game:
         self.right_paddle.draw(self.win)
         self.ball.draw(self.win)
 
+        middle_width = 6
         for i in range(10, HEIGHT, HEIGHT // 20):
             if i % 2 == 1:
                 continue
             else:
-                pygame.draw.rect(self.win, WHITE, (WIDTH // 2 - 5, i, 10, HEIGHT // 20))
+                pygame.draw.rect(self.win, WHITE, (WIDTH // 2 - middle_width // 2, i, middle_width, HEIGHT // 20))
 
         self.ball.draw(self.win)
 
@@ -118,16 +123,17 @@ class Game:
         medium_text = SCORE_FONT.render("Medium", True, WHITE)
         hard_text = SCORE_FONT.render("Hard", True, WHITE)
 
-        rect_x = WIDTH // 2 - 100
         rect_width = 200
-        rect_height = 80
+        rect_height = 70
+        rect_x = WIDTH // 2 - rect_width // 2
+
         pygame.draw.rect(self.win, WHITE, (rect_x, 2 * HEIGHT // 10, rect_width, rect_height), 2)
         pygame.draw.rect(self.win, WHITE, (rect_x, 4 * HEIGHT // 10, rect_width, rect_height), 2)
         pygame.draw.rect(self.win, WHITE, (rect_x, 6 * HEIGHT // 10, rect_width, rect_height), 2)
 
-        self.win.blit(easy_text, (WIDTH // 2 - easy_text.get_width() // 2, 2 * HEIGHT // 10))
-        self.win.blit(medium_text, (WIDTH // 2 - medium_text.get_width() // 2, 4 * HEIGHT // 10))
-        self.win.blit(hard_text, (WIDTH // 2 - hard_text.get_width() // 2, 6 * HEIGHT // 10))
+        self.win.blit(easy_text, (WIDTH // 2 - easy_text.get_width() // 2, 2 * HEIGHT // 10 + rect_height // 2 - easy_text.get_height() // 2))
+        self.win.blit(medium_text, (WIDTH // 2 - medium_text.get_width() // 2, 4 * HEIGHT // 10 + rect_height // 2 - medium_text.get_height() // 2))
+        self.win.blit(hard_text, (WIDTH // 2 - hard_text.get_width() // 2, 6 * HEIGHT // 10 + rect_height // 2 - hard_text.get_height() // 2))
 
         option = 0
         mouse_down = pygame.mouse.get_pressed()[0]
@@ -155,7 +161,6 @@ class Game:
                 if self.ball.x - self.ball.radius <= self.left_paddle.x + self.left_paddle.width:
                     self.ball.x_velocity *= -1
                     self.left_hits += 1
-
 
                     middle_y = self.left_paddle.y + self.left_paddle.height / 2
                     difference_y = middle_y - self.ball.y
@@ -195,7 +200,7 @@ class Game:
 
         game_over = False
         if self.left_score >= self.winning_score:
-            winner_text = "Left player wins!"
+            winner_text = "You win!"
             display_winner = SCORE_FONT.render(winner_text, True, WHITE)
             self.win.blit(display_winner, (WIDTH // 2 - display_winner.get_width() // 2, HEIGHT // 2 - display_winner.get_height() // 2))
             pygame.display.update()
@@ -205,7 +210,7 @@ class Game:
             self.right_score = 0
 
         elif self.right_score >= self.winning_score:
-            winner_text = "Right player wins!"
+            winner_text = "AI wins!"
             display_winner = SCORE_FONT.render(winner_text, True, WHITE)
             self.win.blit(display_winner, (WIDTH // 2 - display_winner.get_width() // 2, HEIGHT // 2 - display_winner.get_height() // 2))
             pygame.display.update()
@@ -214,16 +219,6 @@ class Game:
             self.left_score = 0
             self.right_score = 0
 
-        stats = GameStats(self.left_hits, self.right_hits, self.left_score, self.right_score)
-        return stats, game_over
+        stats = GameStats(self.left_hits, self.right_hits, self.left_score, self.right_score, game_over)
 
-    def paddle_movement(self, pressed_keys):
-        if pressed_keys[pygame.K_w] and self.left_paddle.y - self.left_paddle.VELOCITY >= 0:
-            self.left_paddle.move(up=True)
-        if pressed_keys[pygame.K_s] and self.left_paddle.y + self.left_paddle.VELOCITY + self.left_paddle.height <= HEIGHT:
-            self.left_paddle.move(up=False)
-
-        if pressed_keys[pygame.K_UP] and self.right_paddle.y - self.right_paddle.VELOCITY >= 0:
-            self.right_paddle.move(up=True)
-        if pressed_keys[pygame.K_DOWN] and self.right_paddle.y + self.right_paddle.VELOCITY + self.right_paddle.height <= HEIGHT:
-            self.right_paddle.move(up=False)
+        return stats

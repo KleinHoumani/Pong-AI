@@ -2,7 +2,6 @@ import os
 import neat
 import pygame
 from pong import Game
-import time
 import pickle
 
 
@@ -18,8 +17,6 @@ class PongAI:
         net2 = neat.nn.FeedForwardNetwork.create(genome2, config)
 
         run = True
-        start_time = time.time()
-
         while run:
             output1 = net1.activate((self.left_paddle.y, self.ball.y, abs(self.left_paddle.x - self.ball.x)))
             move1 = output1.index(max(output1))
@@ -28,21 +25,20 @@ class PongAI:
             move2 = output2.index(max(output2))
 
             if move1 == 0:
-                genome1.fitness -= 0.01
+                pass
             if move1 == 1:
                 self.left_paddle.move(True)
             if move1 == 2:
                 self.left_paddle.move(False)
 
             if move2 == 0:
-                genome2.fitness -= 0.01
+                pass
             if move2 == 1:
                 self.right_paddle.move(True)
             if move2 == 2:
                 self.right_paddle.move(False)
 
-            stats = self.game.main_game()[0]
-            duration = time.time() - start_time
+            stats = self.game.main_game()
 
             if stats.left_score > 0 or stats.right_score > 0 or stats.left_hits > 30:
                 self.determine_fitness(genome1, genome2, stats)
@@ -54,7 +50,6 @@ class PongAI:
 
     def set_ai(self, genome, config):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
-        run = True
 
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[pygame.K_w]:
@@ -88,12 +83,11 @@ def eval_genomes(genomes, config):
             break
         genome1.fitness = 0
 
-        genome_id2, genome2 = genomes[i+1]
-        if genome2.fitness is None:
-            genome2.fitness = 0
-
-            training = PongAI(win)
-            training.train_ai(genome1, genome2, config)
+        for genome_id2, genome2 in genomes[i+1:]:
+            if genome2.fitness is None:
+                genome2.fitness = 0
+            game = PongAI(win)
+            game.train_ai(genome1, genome2, config)
 
 def run(config_path):
     config = neat.config.Config(
@@ -104,15 +98,16 @@ def run(config_path):
         config_path
     )
 
+    # population = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4') #restore from checkpoint
     population = neat.Population(config)
     # population.add_reporter(neat.StdOutReporter)
     stats = neat.StatisticsReporter()
     population.add_reporter(stats)
-    population.add_reporter(neat.Checkpointer(5))
+    # population.add_reporter(neat.Checkpointer(5))
 
-    winner = population.run(eval_genomes, 50)
+    winner = population.run(eval_genomes, 10)
 
-    with open("best.pickle", "wb") as f:
+    with open("easy_ai.pickle", "wb") as f:
         pickle.dump(winner, f)
 
 
@@ -125,8 +120,12 @@ def play_ai(config_path):
         config_path
     )
 
-    with open("best.pickle", "rb") as f:
-        winner = pickle.load(f)
+    with open("easy_ai.pickle", "rb") as f:
+        easy_ai = pickle.load(f)
+    with open("medium_ai.pickle", "rb") as f:
+        medium_ai = pickle.load(f)
+    with open("hard_ai.pickle", "rb") as f:
+        hard_ai = pickle.load(f)
 
     width = 700
     height = 500
@@ -151,19 +150,19 @@ def play_ai(config_path):
             choice = pong.game.menu()
             option += choice
         elif option == 1:
-            pong.set_ai(winner, config)
+            pong.set_ai(easy_ai, config)
             game = pong.game.main_game()
-            if game[1]:
+            if game.game_over:
                 option -= option
         elif option == 2:
-            pong.set_ai(winner, config)
+            pong.set_ai(medium_ai, config)
             game = pong.game.main_game()
-            if game[1]:
+            if game.game_over:
                 option -= option
         elif option == 3:
-            pong.set_ai(winner, config)
+            pong.set_ai(hard_ai, config)
             game = pong.game.main_game()
-            if game[1]:
+            if game.game_over:
                 option -= option
 
 
@@ -171,5 +170,4 @@ if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'config.txt')
 
-    # run(config_path)
-    play_ai(config_path)
+    run(config_path)

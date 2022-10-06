@@ -107,7 +107,7 @@ def run(config_path):
 
     winner = population.run(eval_genomes, 10)
 
-    with open("easy_ai.pickle", "wb") as f:
+    with open("Models/easy_ai.pickle", "wb") as f:
         pickle.dump(winner, f)
 
 
@@ -120,11 +120,11 @@ def play_ai(config_path):
         config_path
     )
 
-    with open("easy_ai.pickle", "rb") as f:
+    with open("Models/easy_ai.pickle", "rb") as f:
         easy_ai = pickle.load(f)
-    with open("medium_ai.pickle", "rb") as f:
+    with open("Models/medium_ai.pickle", "rb") as f:
         medium_ai = pickle.load(f)
-    with open("hard_ai.pickle", "rb") as f:
+    with open("Models/hard_ai.pickle", "rb") as f:
         hard_ai = pickle.load(f)
 
     width = 700

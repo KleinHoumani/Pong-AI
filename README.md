@@ -1,1 +1,1 @@
-
+This program allows you to play pong against an AI of three different difficulties. The models were trained using the NEAT algorithm and the game was made using pygame. The easy difficulty was trained for 10 generations, medium was trained for 20 generations, and hard was trained for 50 generations.

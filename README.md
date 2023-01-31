@@ -10,7 +10,7 @@ An in-depth paragraph about your project and overview of use.
 
 To train the AI, simply run train_ai.py
 
-<img src="PongTrain.gif" width="384" height="216"/>
+<img src="/gifs/PongTrain.gif" width="384" height="216"/>
 
 
 ## Play against AI
@@ -20,4 +20,4 @@ To play pong against the AI, run play_pong.py
 - Medium was trained for 20 generations
 - Hard was trained for 50 generations
 
-<img src="PongGame.gif" width="384" height="216"/>
+<img src="/gifs/PongGame.gif" width="384" height="216"/>

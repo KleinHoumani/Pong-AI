@@ -13,7 +13,7 @@ To train the AI, simply run train_ai.py
 <img src="/gifs/PongTrain.gif" width="384" height="216"/>
 
 
-## Play against AI
+## Play against the AI
 
 To play pong against the AI, run play_pong.py 
 - Easy was trained for 10 generations
